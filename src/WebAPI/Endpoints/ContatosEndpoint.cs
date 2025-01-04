@@ -7,15 +7,15 @@ public record UpdateContatoRequest(Guid Id, string Nome, string Email, string Co
 
 public static class ContatosEndpoint
 {
-    private const string BaseRoute = "contatos";
+    private const string BaseRoute = "/contatos";
 
     public static IEndpointRouteBuilder MapContatosEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup(BaseRoute)
+        var group = app.MapGroup($"{BaseRoute}")
             .WithTags("Contatos")
             .WithOpenApi();
         
-        group.MapGet("", () =>
+        group.MapGet("/", () =>
         {
             var contatos = new List<Contato>();
     
@@ -23,7 +23,7 @@ public static class ContatosEndpoint
     
         });
 
-        group.MapPost("", (CreateContatoRequest request) =>
+        group.MapPost("/", (CreateContatoRequest request) =>
         {
             var contato = new Contato
                 { Id = Guid.NewGuid(), Offset = 1, Nome = request.Nome, Email = request.Email, CodigoArea = request.CodigoArea, Telefone = request.Telefone };
