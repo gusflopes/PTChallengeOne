@@ -16,3 +16,29 @@ contatos previamente cadastrados.
 - [ ] **Validações:** implementar validações para garantir dados consistentes (por exemplo: validação de formato de e-mail, telefone, campos obrigatórios).
 - [ ] **Testes Unitários:** desenvolver testes unitários utilizando xUnit ou NUnit.
 
+
+## Executar
+```ps1
+docker run --name postgres-fiap -e POSTGRES_PASSWORD=docker -e POSTGRES_USER=docker -p 5432:5432 -d postgres
+
+
+```
+
+## Implementação
+
+### Objetivo
+Permitir o cadastro de contatos
+
+### Estrutura de dados
+
+```mermaid
+
+classDiagram
+class Contato {
+- nome: String
+- ddd: String
+- telefone: String
+- email: String
+}
+
+```
