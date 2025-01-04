@@ -1,9 +1,11 @@
 using Infrastructure;
 using WebAPI;
+using WebAPI.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddValidators();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

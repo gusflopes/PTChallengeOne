@@ -17,7 +17,20 @@ Content-Type: application/json
   "nome": "John Doe",
   "email": "johndoe@example.com",
   "codigoArea": "67",
-  "telefone": "99263-8484"
+  "telefone": "992638484"
+}
+
+###
+
+PUT {{WebAPI_HostAddress}}/contatos/df50bda0-36a2-4171-bd24-7ab105ad5922
+Content-Type: application/json
+
+{
+  "id": "df50bda0-36a2-4171-bd24-7ab105ad5922",
+  "nome": "John Doe",
+  "email": "johndoe@example.com",
+  "codigoArea": "67",
+  "telefone": "992638484"
 }
 
 ###

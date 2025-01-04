@@ -1,9 +1,7 @@
 using Core.Entity;
+using WebAPI.Requests;
 
 namespace WebAPI.Endpoints;
-
-public record CreateContatoRequest(string Nome, string Email, string CodigoArea, string Telefone);
-public record UpdateContatoRequest(Guid Id, string Nome, string Email, string CodigoArea, string Telefone);
 
 public static class ContatosEndpoint
 {
@@ -28,14 +26,14 @@ public static class ContatosEndpoint
             var contato = new Contato
                 { Id = Guid.NewGuid(), Offset = 1, Nome = request.Nome, Email = request.Email, CodigoArea = request.CodigoArea, Telefone = request.Telefone };
 
-            return Results.Created("", contato);
-        });
+            return Results.Created("/contatos", contato);
+        }).WithValidator<CreateContatoRequest>();
 
         group.MapPut("/{id}", (Guid id, UpdateContatoRequest request) =>
         {
             Console.WriteLine($"Atualizar contato com id {id}");
             return Results.NoContent();
-        });
+        }).WithValidator<UpdateContatoRequest>();
 
         group.MapGet("/{id}", (Guid id) =>
         {
