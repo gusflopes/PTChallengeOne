@@ -15,7 +15,8 @@ public class CreateContatoRequestValidator : AbstractValidator<CreateContatoRequ
             .EmailAddress();
         RuleFor(x => x.CodigoArea)
             .NotEmpty()
-            .Length(2);
+            .Length(2)
+            .Matches(@"^\d+$").WithMessage("Código de área deve conter apenas números");
         RuleFor(x => x.Telefone)
             .NotEmpty()
             .Length(8, 9)
