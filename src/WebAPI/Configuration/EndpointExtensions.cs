@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace WebAPI.Endpoints;
+namespace WebAPI.Configuration;
 
 public static class EndpointExtensions
 {

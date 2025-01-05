@@ -1,4 +1,7 @@
 using Core.Entity;
+using Infrastructure.Context;
+using Microsoft.EntityFrameworkCore;
+using WebAPI.Configuration;
 using WebAPI.Requests;
 
 namespace WebAPI.Endpoints;
@@ -13,37 +16,55 @@ public static class ContatosEndpoint
             .WithTags("Contatos")
             .WithOpenApi();
         
-        group.MapGet("/", () =>
+        group.MapGet("/", async (AppDbContext dbContext) =>
         {
-            var contatos = new List<Contato>();
+            var contatos = await dbContext.Contatos.ToListAsync();
     
             return contatos;
     
         });
 
-        group.MapPost("/", (CreateContatoRequest request) =>
+        group.MapPost("/", async (CreateContatoRequest request, AppDbContext dbContext) =>
         {
             var contato = new Contato
-                { Id = Guid.NewGuid(), Offset = 1, Nome = request.Nome, Email = request.Email, CodigoArea = request.CodigoArea, Telefone = request.Telefone };
+                { Id = Guid.NewGuid(), Nome = request.Nome, Email = request.Email, CodigoArea = request.CodigoArea, Telefone = request.Telefone };
+            
+            await dbContext.Contatos.AddAsync(contato);
+            await dbContext.SaveChangesAsync();
 
             return Results.Created("/contatos", contato);
         }).WithValidator<CreateContatoRequest>();
 
-        group.MapPut("/{id}", (Guid id, UpdateContatoRequest request) =>
+        group.MapPut("/{id}", async (Guid id, UpdateContatoRequest request, AppDbContext dbContext) =>
         {
-            Console.WriteLine($"Atualizar contato com id {id}");
-            return Results.NoContent();
+            var contato = await dbContext.Contatos.SingleOrDefaultAsync(x => x.Id == id);
+            if (contato == null) return Results.NotFound();
+            
+            contato.Nome = request.Nome;
+            contato.Email = request.Email;
+            contato.CodigoArea = request.CodigoArea;
+            contato.Telefone = request.Telefone;
+            
+            await dbContext.SaveChangesAsync();
+
+            return Results.Ok();
         }).WithValidator<UpdateContatoRequest>();
 
-        group.MapGet("/{id}", (Guid id) =>
+        group.MapGet("/{id}", async (Guid id, AppDbContext dbContext) =>
         {
-            Console.WriteLine($"Buscar contato com id {id}");
-            return Results.NotFound();
+            var contato = await dbContext.Contatos.SingleOrDefaultAsync(x => x.Id == id);
+            return contato == null ? Results.NotFound() : Results.Ok(contato);
         });
 
-        group.MapDelete("/{id}", (Guid id) =>
+        group.MapDelete("/{id}", async (Guid id, AppDbContext dbContext) =>
         {
-            Console.WriteLine($"Deletar contato com id {id}");
+            var contato = await dbContext.Contatos.SingleOrDefaultAsync(x => x.Id == id);
+            if (contato == null)
+                return Results.NotFound();
+            
+            dbContext.Contatos.Remove(contato);
+            await dbContext.SaveChangesAsync();
+            
             return Results.NoContent();
         });
 

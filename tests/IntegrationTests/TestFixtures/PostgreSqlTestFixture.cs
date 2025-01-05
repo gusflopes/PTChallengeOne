@@ -1,4 +1,9 @@
-﻿using Npgsql;
+﻿using Infrastructure;
+using Infrastructure.Context;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
 using Testcontainers.PostgreSql;
 
 namespace IntegrationTests.TestFixtures;
@@ -21,7 +26,13 @@ public class PostgreSqlFixture : IAsyncLifetime
         
         await CreateDatabaseAsync();
         
-        // await RunMigrationsAsync();
+        await RunMigrationsAsync();
+        
+        var migrationsExecuted = await VerifyMigrationsExecutedAsync();
+        if (!migrationsExecuted)
+        {
+            throw new Exception("Falha ao executar as migrations");
+        }
     }
 
     public async Task DisposeAsync()
@@ -51,6 +62,42 @@ public class PostgreSqlFixture : IAsyncLifetime
 
     private async Task RunMigrationsAsync()
     {
-        throw new NotImplementedException();
+        var services = new ServiceCollection();
+        
+        var configuration = new ConfigurationManager();
+        configuration.AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            {"ConnectionStrings:DefaultConnection", ConnectionString}
+        });
+        
+        services.AddInfrastructure(configuration);
+        
+        await using var serviceProvider = services.BuildServiceProvider();
+        await using var scope = serviceProvider.CreateAsyncScope();
+        
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await context.Database.MigrateAsync();
+    }
+    
+    private async Task<bool> VerifyMigrationsExecutedAsync()
+    {
+        var services = new ServiceCollection();
+        
+        var configuration = new ConfigurationManager();
+        configuration.AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            {"ConnectionStrings:DefaultConnection", ConnectionString}
+        });
+        
+        services.AddInfrastructure(configuration);
+        
+        await using var serviceProvider = services.BuildServiceProvider();
+        await using var scope = serviceProvider.CreateAsyncScope();
+        
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
+        var appliedMigrations = await context.Database.GetAppliedMigrationsAsync();
+        
+        return !pendingMigrations.Any() && appliedMigrations.Any();
     }
 }
