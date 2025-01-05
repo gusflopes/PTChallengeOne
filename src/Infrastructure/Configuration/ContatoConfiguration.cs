@@ -1,10 +1,12 @@
-﻿using Core;
+﻿using System.Diagnostics.CodeAnalysis;
+using Core;
 using Core.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Configuration;
 
+[ExcludeFromCodeCoverage]
 public class ContatoConfiguration : IEntityTypeConfiguration<Contato>
 {
     public void Configure(EntityTypeBuilder<Contato> builder)
